@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Football Scores Monitor",
+    "name": "Football Team Score Tracker",
     "version": "1.0",
     "description": "Displays football scores in a popup",
     "action": {
@@ -9,16 +9,13 @@
     },
     "permissions": [
       "storage",
-      "alarms",
-      "notifications",
-      "activeTab"
+      "alarms"
     ],
     "host_permissions": [
       "https://api.football-data.org/"
     ],
     "background": {
-      "service_worker": "background.js"
+      "service_worker": "background.js",
+      "type": "module"
     }
-    
-  }
-  
+}

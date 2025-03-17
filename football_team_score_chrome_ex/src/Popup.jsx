@@ -147,20 +147,33 @@ export default function Popup() {
   useEffect(() => {
     if (!selectedLeague) return;
     
-    chrome.storage.local.get(`pastResults_${selectedLeague}`, (data) => {
-      console.log(`Retrieved past results for ${selectedLeague}:`, data[`pastResults_${selectedLeague}`]);
-      setPastResults(data[`pastResults_${selectedLeague}`] || []);
-    });
+    // Set loading states
+    const setLoading = () => {
+      setPastResults([]);
+      setUpcomingFixtures([]);
+      setLeagueTable([]);
+    };
     
-    chrome.storage.local.get(`upcomingFixtures_${selectedLeague}`, (data) => {
-      console.log(`Retrieved upcoming fixtures for ${selectedLeague}:`, data[`upcomingFixtures_${selectedLeague}`]);
-      setUpcomingFixtures(data[`upcomingFixtures_${selectedLeague}`] || []);
-    });
+    setLoading();
     
-    chrome.storage.local.get(`leagueTable_${selectedLeague}`, (data) => {
-      console.log(`Retrieved league table for ${selectedLeague}:`, data[`leagueTable_${selectedLeague}`]);
-      setLeagueTable(data[`leagueTable_${selectedLeague}`] || []);
-    });
+    // Get data from storage
+    chrome.storage.local.get(
+      [
+        `pastResults_${selectedLeague}`, 
+        `upcomingFixtures_${selectedLeague}`, 
+        `leagueTable_${selectedLeague}`
+      ], 
+      (data) => {
+        console.log(`Data availability for ${selectedLeague}:`);
+        console.log(`- Past results: ${data[`pastResults_${selectedLeague}`]?.length || 0} matches`);
+        console.log(`- Upcoming fixtures: ${data[`upcomingFixtures_${selectedLeague}`]?.length || 0} matches`);
+        console.log(`- League table: ${data[`leagueTable_${selectedLeague}`]?.length || 0} entries`);
+        
+        setPastResults(data[`pastResults_${selectedLeague}`] || []);
+        setUpcomingFixtures(data[`upcomingFixtures_${selectedLeague}`] || []);
+        setLeagueTable(data[`leagueTable_${selectedLeague}`] || []);
+      }
+    );
     
   }, [selectedLeague]); // Re-run when selectedLeague changes
 
@@ -222,10 +235,14 @@ export default function Popup() {
   
   // Update the handleLeagueChange function
   const handleLeagueChange = (leagueId) => {
+    console.log(`Changing league to: ${leagueId}`);
     setSelectedLeague(leagueId);
     
-    // Clear current team selection to avoid showing incorrect team data
+    // Clear current team selection
     setSelectedTeam(null);
+    
+    // Show loading state
+    setIsLoadingTeams(true);
     
     // Fetch new data for this league
     chrome.runtime.sendMessage(
@@ -235,11 +252,21 @@ export default function Popup() {
       },
       (response) => {
         console.log("League data update response:", response);
+        
+        // Force a refresh of the league data after 2 seconds to give time for the fetch to complete
+        setTimeout(() => {
+          chrome.storage.local.get([
+            `pastResults_${leagueId}`, 
+            `upcomingFixtures_${leagueId}`, 
+            `leagueTable_${leagueId}`
+          ], (data) => {
+            setPastResults(data[`pastResults_${leagueId}`] || []);
+            setUpcomingFixtures(data[`upcomingFixtures_${leagueId}`] || []);
+            setLeagueTable(data[`leagueTable_${leagueId}`] || []);
+          });
+        }, 2000);
       }
     );
-    
-    // Don't reset the team immediately, let the team selection logic handle it
-    // when the teams for the new league are loaded
   };
 
   return (
