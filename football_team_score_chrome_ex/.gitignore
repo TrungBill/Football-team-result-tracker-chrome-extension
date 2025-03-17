@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.env
+
+# Ignore config file with API key
+public/config.js
+
+# Other common files to ignore
+node_modules/
+dist/
+.env
+.DS_Store

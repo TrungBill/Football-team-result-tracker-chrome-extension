@@ -1,0 +1,112 @@
+.extension-popup {
+  width: 900px;
+  padding: 16px;
+  background-color: #f9fafb;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.team-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.team-logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+}
+
+.team-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.results-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.result-card {
+  width: 48%;
+  background-color: white;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.match-date {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.match-teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.team-name-short {
+  font-weight: 500;
+}
+
+.score {
+  font-weight: 700;
+  margin: 0 6px;
+}
+
+.separator {
+  margin: 0 4px;
+}
+
+.league-position {
+  background-color: white;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+}
+
+.position-number {
+  font-size: 22px;
+  font-weight: 700;
+  margin-right: 12px;
+  color: #1f2937;
+}
+
+.team-stats {
+  flex: 1;
+}
+
+.team-stats p {
+  margin: 4px 0;
+}
+
+.points-display {
+  text-align: right;
+}
+
+.points-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.points-label {
+  font-size: 12px;
+  color: #6b7280;
+}
