@@ -478,36 +478,58 @@ export default function Popup() {
           {recentMatchDetails ? (
             <div style={{ backgroundColor: '#111', padding: '0.75rem', borderRadius: '0.25rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.5)' }}>
               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>{recentMatchDetails.formattedDate}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem' }}>
-                <span style={{ 
-                  fontWeight: '500',
-                  color: recentMatchDetails.homeWin ? 'white' : '#a0a0a0'
+              
+              {/* Vertical stacking layout */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {/* Home Team Row */}
+                <div style={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.25rem 0'
                 }}>
-                  {recentMatchDetails.homeTeam.shortName || recentMatchDetails.homeTeam.name}
-                </span>
-                <span style={{ 
-                  fontWeight: '700', 
-                  marginLeft: '0.5rem', 
-                  marginRight: '0.5rem',
-                  color: recentMatchDetails.homeWin ? 'white' : '#a0a0a0'
+                  <span style={{ 
+                    fontWeight: '500',
+                    color: recentMatchDetails.homeWin ? 'white' : '#a0a0a0',
+                    flex: 1
+                  }}>
+                    {recentMatchDetails.homeTeam.shortName || recentMatchDetails.homeTeam.name}
+                  </span>
+                  <span style={{ 
+                    fontWeight: '700', 
+                    color: recentMatchDetails.homeWin ? 'white' : '#a0a0a0',
+                    fontSize: '1rem',
+                    minWidth: '1.5rem',
+                    textAlign: 'right'
+                  }}>
+                    {recentMatchDetails.homeScore}
+                  </span>
+                </div>
+                
+                {/* Away Team Row */}
+                <div style={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.25rem 0'
                 }}>
-                  {recentMatchDetails.homeScore}
-                </span>
-                <span style={{ marginLeft: '0.25rem', marginRight: '0.25rem', color: '#777' }}>-</span>
-                <span style={{ 
-                  fontWeight: '700', 
-                  marginLeft: '0.5rem', 
-                  marginRight: '0.5rem',
-                  color: recentMatchDetails.awayWin ? 'white' : '#a0a0a0'
-                }}>
-                  {recentMatchDetails.awayScore}
-                </span>
-                <span style={{ 
-                  fontWeight: '500',
-                  color: recentMatchDetails.awayWin ? 'white' : '#a0a0a0'
-                }}>
-                  {recentMatchDetails.awayTeam.shortName || recentMatchDetails.awayTeam.name}
-                </span>
+                  <span style={{ 
+                    fontWeight: '500',
+                    color: recentMatchDetails.awayWin ? 'white' : '#a0a0a0',
+                    flex: 1
+                  }}>
+                    {recentMatchDetails.awayTeam.shortName || recentMatchDetails.awayTeam.name}
+                  </span>
+                  <span style={{ 
+                    fontWeight: '700', 
+                    color: recentMatchDetails.awayWin ? 'white' : '#a0a0a0',
+                    fontSize: '1rem',
+                    minWidth: '1.5rem',
+                    textAlign: 'right'
+                  }}>
+                    {recentMatchDetails.awayScore}
+                  </span>
+                </div>
               </div>
             </div>
           ) : (
@@ -523,10 +545,58 @@ export default function Popup() {
               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>
                 {nextMatchDetails.formattedDate}
               </p>
-              <div style={{ fontSize: '0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: '500', color: 'white' }}>{nextMatchDetails.homeTeam.shortName || nextMatchDetails.homeTeam.name}</span>
-                <span style={{ marginLeft: '0.25rem', marginRight: '0.25rem', color: '#777' }}>vs</span>
-                <span style={{ fontWeight: '500', color: 'white' }}>{nextMatchDetails.awayTeam.shortName || nextMatchDetails.awayTeam.name}</span>
+              
+              {/* Vertical stacking layout - same as past results */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {/* Home Team Row */}
+                <div style={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.25rem 0'
+                }}>
+                  <span style={{ 
+                    fontWeight: '500',
+                    color: 'white',
+                    flex: 1
+                  }}>
+                    {nextMatchDetails.homeTeam.shortName || nextMatchDetails.homeTeam.name}
+                  </span>
+                  <span style={{ 
+                    fontWeight: '700', 
+                    color: '#777',
+                    fontSize: '1rem',
+                    minWidth: '1.5rem',
+                    textAlign: 'right'
+                  }}>
+                    -
+                  </span>
+                </div>
+                
+                {/* Away Team Row */}
+                <div style={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.25rem 0'
+                }}>
+                  <span style={{ 
+                    fontWeight: '500',
+                    color: 'white',
+                    flex: 1
+                  }}>
+                    {nextMatchDetails.awayTeam.shortName || nextMatchDetails.awayTeam.name}
+                  </span>
+                  <span style={{ 
+                    fontWeight: '700', 
+                    color: '#777',
+                    fontSize: '1rem',
+                    minWidth: '1.5rem',
+                    textAlign: 'right'
+                  }}>
+                    -
+                  </span>
+                </div>
               </div>
             </div>
           ) : (
