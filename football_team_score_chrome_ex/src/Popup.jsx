@@ -2,36 +2,74 @@
 import React, { useEffect, useState } from 'react';
 import './Popup.css'; // Import the CSS file
 
+// Add this helper function to calculate relative dates
+const formatRelativeDate = (dateString) => {
+  // Parse the fixture date
+  const fixtureDate = new Date(dateString);
+  // Get current date
+  const currentDate = new Date();
+  
+  // Reset time part for accurate day difference calculation
+  const fixtureDateNoTime = new Date(fixtureDate);
+  fixtureDateNoTime.setHours(0, 0, 0, 0);
+  const currentDateNoTime = new Date(currentDate);
+  currentDateNoTime.setHours(0, 0, 0, 0);
+  
+  // Calculate difference in days
+  const differenceInTime = fixtureDateNoTime.getTime() - currentDateNoTime.getTime();
+  const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+  
+  // Format the time (HH:MM)
+  const hours = fixtureDate.getHours().toString().padStart(2, '0');
+  const minutes = fixtureDate.getMinutes().toString().padStart(2, '0');
+  const timeString = `${hours}:${minutes}`;
+  
+  // Create the final string
+  let relativeDate;
+  if (differenceInDays === 0) {
+    relativeDate = `Today at ${timeString}`;
+  } else if (differenceInDays === 1) {
+    relativeDate = `Tomorrow at ${timeString}`;
+  } else {
+    relativeDate = `in ${differenceInDays} days at ${timeString}`;
+  }
+  
+  return relativeDate;
+};
+
 // Enhanced match rendering for side-by-side display
 function renderMatchDetails(match) {
-  const { homeTeam, awayTeam, score, utcDate } = match;
+  const { homeTeam, awayTeam, score, utcDate, status } = match;
   
   // Extract the correct score properties
   const homeScore = score?.fullTime?.home ?? "-";
   const awayScore = score?.fullTime?.away ?? "-";
   
-  // Format the date nicely
+  // Format the date nicely for standard display
   const matchDate = new Date(utcDate);
-  const formattedDate = matchDate.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
   
-  // Format time for upcoming matches
-  const formattedTime = matchDate.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Determine if this is an upcoming match (no score yet)
+  const isUpcoming = homeScore === "-" && awayScore === "-";
+  
+  let formattedDate;
+  
+  // If it's an upcoming match, use relative date format
+  if (isUpcoming) {
+    formattedDate = formatRelativeDate(utcDate);
+    console.log("Using relative date format:", formattedDate); // Debug log
+  } else {
+    // For past matches, use day + month format
+    const day = matchDate.getDate();
+    const month = matchDate.toLocaleString('default', { month: 'short' });
+    formattedDate = `${day} ${month}`;
+  }
   
   return {
-    formattedDate,
-    formattedTime, // Add time format
+    formattedDate: formattedDate,
     homeTeam,
     awayTeam,
     homeScore,
     awayScore,
-    // Add properties to determine winner
     homeWin: homeScore > awayScore,
     awayWin: awayScore > homeScore,
     draw: homeScore === awayScore
@@ -218,6 +256,9 @@ export default function Popup() {
   const recentMatchDetails = mostRecentResult ? renderMatchDetails(mostRecentResult) : null;
   const nextMatchDetails = nextFixture ? renderMatchDetails(nextFixture) : null;
 
+  // Add near where you're processing the next fixture
+  console.log("Next fixture data:", nextFixture);
+
   // Change team handler
   const handleTeamChange = (teamName, teamObj) => {
     setSelectedTeam(teamName);
@@ -275,7 +316,11 @@ export default function Popup() {
       backgroundColor: 'black', 
       minWidth: '400px', 
       color: '#a0a0a0',
-      position: 'relative' // Added to allow absolute positioning of children
+      position: 'relative',
+      margin: 0,
+      boxSizing: 'border-box',
+      border: 'none',
+      outline: 'none'
     }}>
       {/* Favourite Team Button - Now positioned at top right */}
       <button 
@@ -476,7 +521,7 @@ export default function Popup() {
           {nextMatchDetails ? (
             <div style={{ backgroundColor: '#111', padding: '0.75rem', borderRadius: '0.25rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.5)' }}>
               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-                {nextMatchDetails.formattedDate} at {nextMatchDetails.formattedTime}
+                {nextMatchDetails.formattedDate}
               </p>
               <div style={{ fontSize: '0.875rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '500', color: 'white' }}>{nextMatchDetails.homeTeam.shortName || nextMatchDetails.homeTeam.name}</span>
