@@ -1,15 +1,38 @@
 // extension/background.js
 console.log("Background service worker has started.");
 
-const API_KEY = ''; // Replace with your actual API key when developing
+// Get the API key from storage, then initialize the app
+chrome.storage.local.get('footballApiKey', (data) => {
+  let API_KEY = '';
+  
+  if (data.footballApiKey) {
+    API_KEY = data.footballApiKey;
+    console.log("API key loaded from storage");
+  } else {
+    // Set default key - you can remove this in production
+    API_KEY = '4a05761d5b174f0cb77e1e65362fe81d';
+    chrome.storage.local.set({ footballApiKey: API_KEY });
+    console.log("Default API key set in storage");
+  }
+  
+  // Only initialize the app AFTER we have the API key
+  initializeApp(API_KEY);
+});
 
-function initializeApp() {
+// Move this function definition outside so it can be referenced
+function initializeApp(API_KEY) {
   const BASE_URL = "https://api.football-data.org/v4";
   const FETCH_INTERVAL_MINUTES = 600; // Changed to hourly to avoid API rate limits
 
   // Add debugging to help identify which leagues are supported
   function fetchPastResults(leagueId) {
     return new Promise((resolve, reject) => {
+      if (!API_KEY) {
+        console.error("No API key available");
+        reject("No API key");
+        return;
+      }
+      
       fetch(`https://api.football-data.org/v4/competitions/${leagueId}/matches?status=FINISHED&limit=10`, {
         headers: {
           "X-Auth-Token": API_KEY
@@ -194,6 +217,3 @@ function initializeApp() {
     }
   });
 }
-
-// Start the app
-initializeApp();

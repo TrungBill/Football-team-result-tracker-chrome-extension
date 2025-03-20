@@ -1,11 +1,11 @@
 {
     "manifest_version": 3,
-    "name": "Football Team Score Tracker",
+    "name": "PitchPulse",
     "version": "1.0",
-    "description": "Displays football scores in a popup",
+    "description": "Displays your favorite team past results, upcoming fixture and league position in a popup",
     "action": {
       "default_popup": "index.html",
-      "default_icon": "icon32.png"
+      "default_icon": "icon.png"
     },
     "permissions": [
       "storage",
