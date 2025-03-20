@@ -109,7 +109,14 @@ export default function Popup() {
           { id: 'PD', name: 'LaLiga', country: 'Spain' },
           { id: 'SA', name: 'Serie A', country: 'Italy' },
           { id: 'BL1', name: 'Bundesliga', country: 'Germany' },
-          { id: 'FL1', name: 'Ligue 1', country: 'France' }
+          { id: 'FL1', name: 'Ligue 1', country: 'France' },
+          { id: 'CL', name: 'UEFA Champions League', country: 'Europe' },
+          { id: 'WC', name: 'FIFA World Cup', country: 'International' },
+          { id: 'DED', name: 'Eredivisie', country: 'Netherlands' },
+          { id: 'PPL', name: 'Primeira Liga', country: 'Portugal' },
+          { id: 'ELC', name: 'EFL Championship', country: 'England' },
+          { id: 'BSA', name: 'Brasileirão', country: 'Brazil' },
+          
         ];
         setAvailableLeagues(defaultLeagues);
         setSelectedLeague('PL'); // Default to Premier League
