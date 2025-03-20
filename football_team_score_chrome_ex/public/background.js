@@ -1,7 +1,7 @@
 // extension/background.js
 console.log("Background service worker has started.");
 
-const API_KEY = '4a05761d5b174f0cb77e1e65362fe81d'; // Replace with your actual API key when developing
+const API_KEY = ''; // Replace with your actual API key when developing
 
 function initializeApp() {
   const BASE_URL = "https://api.football-data.org/v4";
