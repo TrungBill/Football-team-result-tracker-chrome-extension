@@ -1,8 +1,8 @@
-# Football Scores Monitor Chrome Extension
+#PitchPulse Chrome Extension
 
 ## Overview
 
-Football Scores Monitor is a Chrome extension that displays football scores, fixtures, and league standings in a popup. Users can select their favorite team and league to get the latest updates.
+PitchPulse is a Chrome extension that displays football scores, fixtures, and league standings in a popup. Users can select their favorite team and league to get the latest updates.
 
 ## Features
 
