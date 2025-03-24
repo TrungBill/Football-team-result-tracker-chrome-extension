@@ -212,7 +212,7 @@ export default function Popup() {
         console.log(`Data availability for ${selectedLeague}:`);
         console.log(`- Past results: ${data[`pastResults_${selectedLeague}`]?.length || 0} matches`);
         console.log(`- Upcoming fixtures: ${data[`upcomingFixtures_${selectedLeague}`]?.length || 0} matches`);
-        console.log(`- League table: ${data[`leagueTable_${selectedLeague}`]?.length || 0} entries`);
+        console.log(`- League table: ${data[`leagueTable_${selectedLeague}`]?.length || 0} entries` );
         
         setPastResults(data[`pastResults_${selectedLeague}`] || []);
         setUpcomingFixtures(data[`upcomingFixtures_${selectedLeague}`] || []);

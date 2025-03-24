@@ -1,118 +1,98 @@
-// extension/background.js
 console.log("Background service worker has started.");
 
-// Get the API key from storage, then initialize the app
-chrome.storage.local.get('footballApiKey', (data) => {
-  let API_KEY = '';
-  
-  if (data.footballApiKey) {
-    API_KEY = data.footballApiKey;
-    console.log("API key loaded from storage");
-  } else {
-    // Set default key - you can remove this in production
-    API_KEY = '4a05761d5b174f0cb77e1e65362fe81d';
-    chrome.storage.local.set({ footballApiKey: API_KEY });
-    console.log("Default API key set in storage");
-  }
-  
-  // Only initialize the app AFTER we have the API key
-  initializeApp(API_KEY);
-});
+const BASE_URL = "http://localhost:3000/api"; // Backend server URL
 
-// Move this function definition outside so it can be referenced
-function initializeApp(API_KEY) {
-  const BASE_URL = "https://api.football-data.org/v4";
+function initializeApp() {
   const FETCH_INTERVAL_MINUTES = 600; // Changed to hourly to avoid API rate limits
 
   // Add debugging to help identify which leagues are supported
   function fetchPastResults(leagueId) {
     return new Promise((resolve, reject) => {
-      if (!API_KEY) {
-        console.error("No API key available");
-        reject("No API key");
-        return;
-      }
-      
-      fetch(`https://api.football-data.org/v4/competitions/${leagueId}/matches?status=FINISHED&limit=10`, {
-        headers: {
-          "X-Auth-Token": API_KEY
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          console.error(`Error fetching past results for ${leagueId}: HTTP ${response.status}`);
-          // Capture the error response content for debugging
-          return response.text().then(text => {
-            try {
-              return Promise.reject(JSON.parse(text));
-            } catch {
-              return Promise.reject(text);
-            }
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log(`Successful data fetch for ${leagueId} past results:`, 
-          data.matches ? `${data.matches.length} matches` : 'No matches found');
-        chrome.storage.local.set({ [`pastResults_${leagueId}`]: data.matches || [] });
-        resolve(data);
-      })
-      .catch(error => {
-        console.error(`Error processing past results for league ${leagueId}:`, error);
-        chrome.storage.local.set({ [`pastResults_${leagueId}`]: [] });
-        reject(error);
-      });
+      fetch(`${BASE_URL}/pastResults/${leagueId}`)
+        .then(response => {
+          if (!response.ok) {
+            console.error(`Error fetching past results for ${leagueId}: HTTP ${response.status}`);
+            return response.text().then(text => {
+              try {
+                return Promise.reject(JSON.parse(text));
+              } catch {
+                return Promise.reject(text);
+              }
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(`Successful data fetch for ${leagueId} past results:`, 
+            data.matches ? `${data.matches.length} matches` : 'No matches found');
+          chrome.storage.local.set({ [`pastResults_${leagueId}`]: data.matches || [] });
+          resolve(data);
+        })
+        .catch(error => {
+          console.error(`Error processing past results for league ${leagueId}:`, error);
+          chrome.storage.local.set({ [`pastResults_${leagueId}`]: [] });
+          reject(error);
+        });
     });
   }
 
   // Fetch upcoming fixtures (scheduled matches)
   function fetchUpcomingFixtures(leagueId) {
     return new Promise((resolve, reject) => {
-      fetch(`https://api.football-data.org/v4/competitions/${leagueId}/matches?status=SCHEDULED`, {
-        headers: {
-          "X-Auth-Token": API_KEY
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        chrome.storage.local.set({ [`upcomingFixtures_${leagueId}`]: data.matches || [] });
-        resolve(data);
-      })
-      .catch(error => {
-        console.error(`Error fetching upcoming fixtures for league ${leagueId}:`, error);
-        reject(error);
-      });
+      fetch(`${BASE_URL}/upcomingFixtures/${leagueId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          chrome.storage.local.set({ [`upcomingFixtures_${leagueId}`]: data.matches || [] });
+          resolve(data);
+        })
+        .catch(error => {
+          console.error(`Error fetching upcoming fixtures for league ${leagueId}:`, error);
+          reject(error);
+        });
     });
   }
 
-  // Fetch league table (standings)
+  // Update the fetchLeagueTable function in background.js
   function fetchLeagueTable(leagueId) {
     return new Promise((resolve, reject) => {
-      fetch(`https://api.football-data.org/v4/competitions/${leagueId}/standings`, {
-        headers: {
-          "X-Auth-Token": API_KEY
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        chrome.storage.local.set({ [`leagueTable_${leagueId}`]: data.standings[0].table || [] });
-        resolve(data);
-      })
-      .catch(error => {
-        console.error(`Error fetching league table for league ${leagueId}:`, error);
-        reject(error);
-      });
+      fetch(`${BASE_URL}/leagueTable/${leagueId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Log the data structure to understand what we're receiving
+          console.log(`League table data for ${leagueId}:`, data);
+          
+          // Handle different possible data structures
+          let tableData = [];
+          
+          if (data.standings && Array.isArray(data.standings) && data.standings.length > 0) {
+            tableData = data.standings[0].table || [];
+          } else if (data.standing && Array.isArray(data.standing)) {
+            // Some API versions use "standing" instead of "standings"
+            tableData = data.standing;
+          } else if (data.table && Array.isArray(data.table)) {
+            // Direct table array in response
+            tableData = data.table;
+          }
+          
+          // Save whatever valid data we found
+          chrome.storage.local.set({ [`leagueTable_${leagueId}`]: tableData });
+          resolve(data);
+        })
+        .catch(error => {
+          console.error(`Error fetching league table for league ${leagueId}:`, error);
+          chrome.storage.local.set({ [`leagueTable_${leagueId}`]: [] });
+          reject(error);
+        });
     });
   }
 
@@ -187,24 +167,20 @@ function initializeApp(API_KEY) {
     if (message.action === "fetchTeams") {
       const leagueId = message.leagueId;
       
-      fetch(`https://api.football-data.org/v4/competitions/${leagueId}/teams`, {
-        headers: {
-          "X-Auth-Token": API_KEY
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        sendResponse({ teams: data.teams });
-      })
-      .catch(error => {
-        console.error("Error fetching teams:", error);
-        sendResponse({ error: "Failed to fetch teams" });
-      });
+      fetch(`${BASE_URL}/teams/${leagueId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          sendResponse({ teams: data.teams });
+        })
+        .catch(error => {
+          console.error("Error fetching teams:", error);
+          sendResponse({ error: "Failed to fetch teams" });
+        });
       
       return true; // Important: keeps the message channel open for the async response
     }
@@ -217,3 +193,28 @@ function initializeApp(API_KEY) {
     }
   });
 }
+
+// In server.js
+app.get('/api/leagueTable/:leagueId', async (req, res) => {
+  const { leagueId } = req.params;
+  try {
+    const response = await fetch(`${BASE_URL}/competitions/${leagueId}/standings`, {
+      headers: { "X-Auth-Token": API_KEY }
+    });
+    
+    const data = await response.json();
+    
+    // Log data structure to help with debugging
+    console.log(`League ${leagueId} standings response:`, 
+                data.standings ? 'Has standings data' : 'No standings data');
+    
+    // Return the full data object, let the client handle the structure
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching league table:', error);
+    res.status(500).json({ error: 'Failed to fetch league table' });
+  }
+});
+
+// Start the app
+initializeApp();
