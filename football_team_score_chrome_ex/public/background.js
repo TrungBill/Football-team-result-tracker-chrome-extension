@@ -194,27 +194,7 @@ function initializeApp() {
   });
 }
 
-// In server.js
-app.get('/api/leagueTable/:leagueId', async (req, res) => {
-  const { leagueId } = req.params;
-  try {
-    const response = await fetch(`${BASE_URL}/competitions/${leagueId}/standings`, {
-      headers: { "X-Auth-Token": API_KEY }
-    });
-    
-    const data = await response.json();
-    
-    // Log data structure to help with debugging
-    console.log(`League ${leagueId} standings response:`, 
-                data.standings ? 'Has standings data' : 'No standings data');
-    
-    // Return the full data object, let the client handle the structure
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching league table:', error);
-    res.status(500).json({ error: 'Failed to fetch league table' });
-  }
-});
+
 
 // Start the app
 initializeApp();
